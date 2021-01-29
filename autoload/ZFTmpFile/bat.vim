@@ -1,0 +1,3 @@
+
+call ZFTmpFileAlias('dosbatch', 'bat')
+
