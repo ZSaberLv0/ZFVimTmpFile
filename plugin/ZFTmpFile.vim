@@ -10,6 +10,7 @@ if !exists('g:ZFTmpFile_storeResult')
 endif
 
 function! CygpathFix_absPath(path)
+    if len(a:path) <= 0|return ''|endif
     if !exists('g:CygpathFix_isCygwin')
         let g:CygpathFix_isCygwin = has('win32unix') && executable('cygpath')
     endif
