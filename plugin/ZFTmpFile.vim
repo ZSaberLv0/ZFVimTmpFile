@@ -182,12 +182,20 @@ function! ZFTmpFile_initAction()
 endfunction
 
 function! ZFTmpFile_saveAction()
+    let moreSaved = &more
+    set nomore
+    try
+        call s:ZFTmpFile_saveAction()
+    catch
+    endtry
+    let &more = moreSaved
+endfunction
+
+function! s:ZFTmpFile_saveAction()
     let Fns = s:prepareImplFunc('saveAction')
     if empty(Fns)
         return
     endif
-    let moreSaved = &more
-    set nomore
 
     let filePath = CygpathFix_absPath(expand('%'))
     let ft = &filetype
@@ -224,7 +232,6 @@ function! ZFTmpFile_saveAction()
     if g:ZFTmpFile_storeResult != ''
         execute 'let @' . g:ZFTmpFile_storeResult . ' = result'
     endif
-    let &more = moreSaved
 endfunction
 
 function! ZFTmpFile_cleanupAction()
