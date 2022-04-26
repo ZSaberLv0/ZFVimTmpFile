@@ -32,8 +32,13 @@ function! CygpathFix_absPath(path)
     return substitute(substitute(path, '\\', '/', 'g'), '\%(\/\)\@<!\/\+$', '', '') " (?<!\/)\/+$
 endfunction
 
-function! ZFTmpFilePath()
-    return CygpathFix_absPath(tempname())
+function! ZFTmpFilePath(...)
+    let filePath = tempname()
+    let ft = get(a:, 1, '')
+    if !empty(ft)
+        let filePath = ZFTmpFile_convertFilePath(filePath, ft)
+    endif
+    return CygpathFix_absPath(filePath)
 endfunction
 
 function! ZFTmpFile_cp(from, to)
@@ -54,7 +59,7 @@ endfunction
 
 function! ZFTmpFile(...)
     let ft = get(a:, 1, '')
-    execute 'edit ' . ZFTmpFilePath()
+    execute 'edit ' . ZFTmpFilePath(ft)
     if !empty(ft)
         let &filetype = ft
     endif
@@ -80,6 +85,10 @@ function! ZFTmpFileSetup(ft)
                     \   '',
                     \   '" call ZFTmpFileAlias("existFt", "' . a:ft . '")',
                     \   '',
+                    \   'function! ZFTmpFile#' . ft . '#convertFilePath(filePath)',
+                    \   '    return a:filePath',
+                    \   'endfunction',
+                    \   '',
                     \   'function! ZFTmpFile#' . ft . '#initAction(filePath)',
                     \   'endfunction',
                     \   '',
@@ -97,19 +106,23 @@ command! -nargs=1 -complete=filetype ZFTmpFileSetup :call ZFTmpFileSetup(<q-args
 function! ZFTmpFileAlias(existFt, aliasFt)
     let aliasFt = s:ftEscape(a:aliasFt)
     execute join([
+                \   'function! ZFTmpFile_' . aliasFt . '_convertFilePath(filePath)',
+                \   '    return ZFTmpFile_convertFilePath(a:filePath, "' . a:existFt . '")',
+                \   'endfunction',
+                \ ], "\n")
+    execute join([
                 \   'function! ZFTmpFile_' . aliasFt . '_initAction(filePath)',
-                \   '    set filetype=' . a:existFt,
-                \   '    call ZFTmpFile_initAction()',
+                \   '    call ZFTmpFile_initAction("' . a:existFt . '")',
                 \   'endfunction',
                 \ ], "\n")
     execute join([
                 \   'function! ZFTmpFile_' . aliasFt . '_saveAction(filePath)',
-                \   '    call ZFTmpFile_saveAction()',
+                \   '    call ZFTmpFile_saveAction("' . a:existFt . '")',
                 \   'endfunction',
                 \ ], "\n")
     execute join([
                 \   'function! ZFTmpFile_' . aliasFt . '_cleanupAction(filePath)',
-                \   '    call ZFTmpFile_cleanupAction()',
+                \   '    call ZFTmpFile_cleanupAction("' . a:existFt . '")',
                 \   'endfunction',
                 \ ], "\n")
 endfunction
@@ -169,9 +182,12 @@ function! s:autoloadFuncExist(ftEscape, fnName)
     return exists('*' . a:fnName)
 endfunction
 
-function! s:prepareImplFunc(action)
+function! s:prepareImplFunc(action, ...)
     let ret = []
-    let ft = &filetype
+    let ft = get(a:, 1, '')
+    if empty(ft)
+        let ft = &filetype
+    endif
     let ftEscape = s:ftEscape(ft)
     if empty(ftEscape)
         return ret
@@ -190,9 +206,20 @@ function! s:prepareImplFunc(action)
     return ret
 endfunction
 
-function! ZFTmpFile_initAction()
+function! ZFTmpFile_convertFilePath(filePath, ...)
+    let filePath = a:filePath
+    for Fn in s:prepareImplFunc('convertFilePath', get(a:, 1, ''))
+        let tmp = Fn(filePath)
+        if !empty(tmp)
+            let filePath = tmp
+        endif
+    endfor
+    return filePath
+endfunction
+
+function! ZFTmpFile_initAction(...)
     let filePath = CygpathFix_absPath(expand('%'))
-    for Fn in s:prepareImplFunc('initAction')
+    for Fn in s:prepareImplFunc('initAction', get(a:, 1, ''))
         call Fn(filePath)
     endfor
 endfunction
@@ -207,8 +234,8 @@ function! ZFTmpFile_saveAction()
     let &more = moreSaved
 endfunction
 
-function! s:ZFTmpFile_saveAction()
-    let Fns = s:prepareImplFunc('saveAction')
+function! s:ZFTmpFile_saveAction(...)
+    let Fns = s:prepareImplFunc('saveAction', get(a:, 1, ''))
     if empty(Fns)
         return
     endif
@@ -250,9 +277,9 @@ function! s:ZFTmpFile_saveAction()
     endif
 endfunction
 
-function! ZFTmpFile_cleanupAction()
+function! ZFTmpFile_cleanupAction(...)
     let filePath = CygpathFix_absPath(expand('%'))
-    for Fn in s:prepareImplFunc('cleanupAction')
+    for Fn in s:prepareImplFunc('cleanupAction', get(a:, 1, ''))
         call Fn(filePath)
     endfor
 endfunction
