@@ -224,11 +224,11 @@ function! ZFTmpFile_initAction(...)
     endfor
 endfunction
 
-function! ZFTmpFile_saveAction()
+function! ZFTmpFile_saveAction(...)
     let moreSaved = &more
     set nomore
     try
-        call s:ZFTmpFile_saveAction()
+        call s:ZFTmpFile_saveAction(get(a:, 1, ''))
     catch
     endtry
     let &more = moreSaved

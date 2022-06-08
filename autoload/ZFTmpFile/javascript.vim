@@ -20,7 +20,7 @@ function! ZFTmpFile#javascript#initAction(filePath)
                 \   '    global.document = document;',
                 \   '} catch(err) {}',
                 \   'try {',
-                \   '    const $ = global.jQuery = require("jquery")',
+                \   '    $ = global.jQuery = require("jquery")',
                 \   '} catch(err) {}',
                 \   '// ============================================================',
                 \   '',
