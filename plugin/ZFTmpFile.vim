@@ -117,7 +117,7 @@ function! ZFTmpFileAlias(existFt, aliasFt)
                 \ ], "\n")
     execute join([
                 \   'function! ZFTmpFile_' . aliasFt . '_saveAction(filePath)',
-                \   '    call ZFTmpFile_saveAction("' . a:existFt . '")',
+                \   '    call ZFTmpFile_saveAction("' . a:existFt . '", 1)',
                 \   'endfunction',
                 \ ], "\n")
     execute join([
@@ -228,7 +228,7 @@ function! ZFTmpFile_saveAction(...)
     let moreSaved = &more
     set nomore
     try
-        call s:ZFTmpFile_saveAction(get(a:, 1, ''))
+        call s:ZFTmpFile_saveAction(get(a:, 1, ''), get(a:, 2, 0))
     catch
     endtry
     let &more = moreSaved
@@ -239,12 +239,15 @@ function! s:ZFTmpFile_saveAction(...)
     if empty(Fns)
         return
     endif
+    let noEcho = get(a:, 2, 0)
 
     let filePath = CygpathFix_absPath(expand('%'))
     let ft = &filetype
 
     redraw!
-    echo '[ZFTmpFile] run as ' . ft
+    if !noEcho
+        echo '[ZFTmpFile] run as ' . ft
+    endif
 
     let result = ''
     if exists('*execute')
@@ -265,7 +268,9 @@ function! s:ZFTmpFile_saveAction(...)
     endif
 
     redraw!
-    echo '[ZFTmpFile] run as ' . ft . ' finished'
+    if !noEcho
+        echo '[ZFTmpFile] run as ' . ft . ' finished'
+    endif
     let result = substitute(result, '^[\r\n]\+', '', 'g')
     let result = substitute(result, '[\r\n]\+$', '', 'g')
     if !empty(result)
