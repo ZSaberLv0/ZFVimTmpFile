@@ -262,6 +262,8 @@ function! s:ZFTmpFile_saveAction(...)
             for Fn in Fns
                 call Fn(filePath)
             endfor
+        catch
+            let result = v:exception
         finally
             redir END
         endtry
