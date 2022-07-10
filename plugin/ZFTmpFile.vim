@@ -42,7 +42,7 @@ function! ZFTmpFilePath(...)
 endfunction
 
 function! ZFTmpFile_cp(from, to)
-    if has('win32') || has('win64')
+    if has('windows')
         call system('copy /y "' . substitute(a:from, '/', '\', 'g') . '" "' . substitute(a:to, '/', '\', 'g') . '" >nul 2>&1')
     else
         call system('yes | cp "' . a:from . '" "' . a:to . '" >/dev/null 2>&1')
@@ -50,7 +50,7 @@ function! ZFTmpFile_cp(from, to)
 endfunction
 
 function! ZFTmpFile_rm(f)
-    if has('win32') || has('win64')
+    if has('windows')
         call system('rmdir /s/q "' . substitute(a:f, '/', '\', 'g') . '"')
     else
         call system('rm -rf "' . a:f . '"')

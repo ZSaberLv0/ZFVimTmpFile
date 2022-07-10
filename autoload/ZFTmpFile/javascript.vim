@@ -34,7 +34,7 @@ endfunction
 function! ZFTmpFile#javascript#saveAction(filePath)
     let nodePath = substitute(system('npm root -g'), '[\r\n]', '', 'g')
     if !empty(nodePath) && isdirectory(nodePath)
-        if has('win32') && !has('win32unix')
+        if has('windows') && !has('win32unix')
             let cmd = 'SET NODE_PATH="' . nodePath . '" && '
         else
             let cmd = 'NODE_PATH="' . nodePath . '" '
