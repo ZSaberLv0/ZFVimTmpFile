@@ -73,17 +73,21 @@ command! -nargs=0 ZFTmpFileEnableCurrent :call s:setupForCurrent()
 
 let s:dataPath = CygpathFix_absPath(expand('<sfile>:p:h:h') . '/autoload/ZFTmpFile')
 function! ZFTmpFileSetup(ft)
-    if empty(a:ft)
+    let ft = a:ft
+    if empty(ft)
+        let ft = &filetype
+    endif
+    if empty(ft)
         echo 'you must specify filetype'
         return
     endif
-    let ft = s:ftEscape(a:ft)
+    let ft = s:ftEscape(ft)
     let path = s:dataPath . '/' . ft . '.vim'
     execute 'edit ' . path
     if !filereadable(path)
         call setline(1, [
                     \   '',
-                    \   '" call ZFTmpFileAlias("existFt", "' . a:ft . '")',
+                    \   '" call ZFTmpFileAlias("existFt", "' . ft . '")',
                     \   '',
                     \   'function! ZFTmpFile#' . ft . '#convertFilePath(filePath)',
                     \   '    return a:filePath',
@@ -101,7 +105,7 @@ function! ZFTmpFileSetup(ft)
                     \ ])
     endif
 endfunction
-command! -nargs=1 -complete=filetype ZFTmpFileSetup :call ZFTmpFileSetup(<q-args>)
+command! -nargs=* -complete=filetype ZFTmpFileSetup :call ZFTmpFileSetup(<q-args>)
 
 function! ZFTmpFileAlias(existFt, aliasFt)
     let aliasFt = s:ftEscape(a:aliasFt)

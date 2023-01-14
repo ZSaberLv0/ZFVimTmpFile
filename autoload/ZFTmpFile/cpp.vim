@@ -15,7 +15,12 @@ endfunction
 
 function! ZFTmpFile#cpp#saveAction(filePath)
     let o = ZFTmpFilePath()
-    let compile = system('g++ -x c++ "' . a:filePath . '" -o "' . o . '"')
+    let cmd = 'g++'
+    if get(g:, 'ZFTmpFile_cpp_cpp11', 1)
+        let cmd .= ' -std=c++11'
+    endif
+    let cmd .= ' -x c++'
+    let compile = system(cmd . ' "' . a:filePath . '" -o "' . o . '"')
     let result = system('"' . o . '"')
     call delete(o)
     echo compile
