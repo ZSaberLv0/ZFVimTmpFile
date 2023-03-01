@@ -116,6 +116,7 @@ function! ZFTmpFileAlias(existFt, aliasFt)
                 \ ], "\n")
     execute join([
                 \   'function! ZFTmpFile_' . aliasFt . '_initAction(filePath)',
+                \   '    set filetype=' . a:existFt,
                 \   '    call ZFTmpFile_initAction("' . a:existFt . '")',
                 \   'endfunction',
                 \ ], "\n")
