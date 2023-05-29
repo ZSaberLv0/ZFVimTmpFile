@@ -1,4 +1,12 @@
 
+function! ZFTmpFile#python#initAction(filePath)
+    call setline(1, [
+                \   "# -*- coding: utf-8",
+                \   "",
+                \ ])
+    update
+endfunction
+
 function! ZFTmpFile#python#saveAction(filePath)
     if 0
     elseif executable('python3')
