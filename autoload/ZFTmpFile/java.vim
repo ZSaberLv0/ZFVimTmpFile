@@ -2,9 +2,17 @@
 function! ZFTmpFile#java#initAction(filePath)
     call setline(1, [
                 \   '',
+                \   'import java.text.SimpleDateFormat;',
+                \   'import java.util.ArrayList;',
+                \   'import java.util.Date;',
+                \   'import java.util.HashMap;',
+                \   'import java.util.List;',
+                \   'import java.util.Map;',
+                \   '',
                 \   'public class Hello {',
                 \   '    public static void main(String[] args) {',
-                \   '        System.out.println(String.format("hello world: %s", 123));',
+                \   '        String curTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());',
+                \   '        System.out.println(String.format("hello world: %s", curTime));',
                 \   '    }',
                 \   '}',
                 \   '',
