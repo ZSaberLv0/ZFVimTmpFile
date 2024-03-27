@@ -10,10 +10,12 @@ function! ZFTmpFile#java#initAction(filePath)
                 \   'import java.util.Map;',
                 \   '',
                 \   'public class Hello {',
+                \   '',
                 \   '    public static void main(String[] args) {',
                 \   '        String curTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());',
                 \   '        System.out.println(String.format("hello world: %s", curTime));',
                 \   '    }',
+                \   '',
                 \   '}',
                 \   '',
                 \ ])
