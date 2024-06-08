@@ -3,8 +3,10 @@ function! ZFTmpFile#python#initAction(filePath)
     call setline(1, [
                 \   "# -*- coding: utf-8 -*-",
                 \   "",
+                \   "",
                 \ ])
     update
+    normal! G
 endfunction
 
 function! ZFTmpFile#python#saveAction(filePath)

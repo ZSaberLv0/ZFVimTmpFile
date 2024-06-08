@@ -34,10 +34,6 @@ endfunction
 
 function! ZFTmpFilePath(...)
     let filePath = tempname()
-    let ft = get(a:, 1, '')
-    if !empty(ft)
-        let filePath = ZFTmpFile_convertFilePath(filePath, ft)
-    endif
     return CygpathFix_absPath(filePath)
 endfunction
 
@@ -89,10 +85,6 @@ function! ZFTmpFileSetup(ft)
                     \   '',
                     \   '" call ZFTmpFileAlias("existFt", "' . ft . '")',
                     \   '',
-                    \   'function! ZFTmpFile#' . ft . '#convertFilePath(filePath)',
-                    \   '    return a:filePath',
-                    \   'endfunction',
-                    \   '',
                     \   'function! ZFTmpFile#' . ft . '#initAction(filePath)',
                     \   'endfunction',
                     \   '',
@@ -109,11 +101,6 @@ command! -nargs=* -complete=filetype ZFTmpFileSetup :call ZFTmpFileSetup(<q-args
 
 function! ZFTmpFileAlias(existFt, aliasFt)
     let aliasFt = s:ftEscape(a:aliasFt)
-    execute join([
-                \   'function! ZFTmpFile_' . aliasFt . '_convertFilePath(filePath)',
-                \   '    return ZFTmpFile_convertFilePath(a:filePath, "' . a:existFt . '")',
-                \   'endfunction',
-                \ ], "\n")
     execute join([
                 \   'function! ZFTmpFile_' . aliasFt . '_initAction(filePath)',
                 \   '    set filetype=' . a:existFt,
@@ -161,7 +148,7 @@ function! ZF_TmpFile_cleanup()
         call ZFTmpFile_cleanupAction()
         doautocmd User ZFTmpFileCleanup
         if filereadable(file)
-            call delete(file)
+            call ZFTmpFile_rm(file)
         endif
     endif
 endfunction
@@ -209,17 +196,6 @@ function! s:prepareImplFunc(action, ...)
     endif
 
     return ret
-endfunction
-
-function! ZFTmpFile_convertFilePath(filePath, ...)
-    let filePath = a:filePath
-    for Fn in s:prepareImplFunc('convertFilePath', get(a:, 1, ''))
-        let tmp = Fn(filePath)
-        if !empty(tmp)
-            let filePath = tmp
-        endif
-    endfor
-    return filePath
 endfunction
 
 function! ZFTmpFile_initAction(...)

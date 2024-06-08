@@ -20,6 +20,7 @@ function! ZFTmpFile#java#initAction(filePath)
                 \   '',
                 \ ])
     update
+    normal! 12j
 endfunction
 
 function! ZFTmpFile#java#saveAction(filePath)

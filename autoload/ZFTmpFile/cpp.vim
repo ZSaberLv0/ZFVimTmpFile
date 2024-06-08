@@ -15,6 +15,7 @@ function! ZFTmpFile#cpp#initAction(filePath)
                 \   "",
                 \ ])
     update
+    normal! 8j
 endfunction
 
 function! ZFTmpFile#cpp#saveAction(filePath)
@@ -29,7 +30,7 @@ function! ZFTmpFile#cpp#saveAction(filePath)
     let cmd .= ' -x c++'
     let compile = system(cmd . ' "' . a:filePath . '" -o "' . o . '"')
     let result = system('"' . o . '"')
-    call delete(o)
+    call ZFTmpFile_rm(o)
     echo compile
     echo result
 endfunction

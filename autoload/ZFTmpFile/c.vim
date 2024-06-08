@@ -11,6 +11,7 @@ function! ZFTmpFile#c#initAction(filePath)
                 \   "",
                 \ ])
     update
+    normal! 4j
 endfunction
 
 function! ZFTmpFile#c#saveAction(filePath)
@@ -19,7 +20,7 @@ function! ZFTmpFile#c#saveAction(filePath)
     let cmd .= ' -x c'
     let compile = system(cmd . ' "' . a:filePath . '" -o "' . o . '"')
     let result = system('"' . o . '"')
-    call delete(o)
+    call ZFTmpFile_rm(o)
     echo compile
     echo result
 endfunction

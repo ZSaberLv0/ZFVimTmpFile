@@ -8,6 +8,7 @@ function! ZFTmpFile#rust#initAction(filePath)
                 \   "",
                 \ ])
     update
+    normal! 2j
 endfunction
 
 function! ZFTmpFile#rust#saveAction(filePath)
@@ -23,6 +24,6 @@ function! ZFTmpFile#rust#saveAction(filePath)
             echo runResult
         endif
     endif
-    silent! call delete(tmpFile)
+    call ZFTmpFile_rm(tmpFile)
 endfunction
 

@@ -6,6 +6,7 @@ function! ZFTmpFile#dosbatch#initAction(filePath)
                 \   'setlocal enabledelayedexpansion',
                 \   'set WORK_DIR=%~dp0',
                 \   '',
+                \   '',
                 \ ])
     setlocal fileformat=dos
     update
@@ -21,7 +22,7 @@ function! ZFTmpFile#dosbatch#saveAction(filePath)
     try
         let result = system(cmd)
     endtry
-    silent! call delete(substitute(pathTmp, '\\', '/', 'g'))
+    call ZFTmpFile_rm(substitute(pathTmp, '\\', '/', 'g'))
     if empty(result)
         return
     endif

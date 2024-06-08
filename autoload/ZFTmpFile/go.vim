@@ -10,7 +10,7 @@ function! ZFTmpFile#go#initAction(filePath)
                 \   '',
                 \ ])
     update
-    normal! G
+    normal! 4j
 endfunction
 
 function! ZFTmpFile#go#saveAction(filePath)
@@ -18,7 +18,7 @@ function! ZFTmpFile#go#saveAction(filePath)
     let pathTmp = path . '.go'
     silent! noautocmd call writefile(readfile(path, 'b'), pathTmp, 'b')
     let result = system('go run "' . pathTmp . '"')
-    call delete(pathTmp)
+    call ZFTmpFile_rm(pathTmp)
     echo result
 endfunction
 

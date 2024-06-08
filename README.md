@@ -39,10 +39,6 @@ temp file and autocmds for ease
 to add your own `filetype`, supply these functions (all optional):
 
 ```
-function! ZFTmpFile_YourFileType_convertFilePath(filePath)
-    return YourConvertFilePath(a:filePath)
-endfunction
-
 function! ZFTmpFile_YourFileType_initAction(filePath)
     call YourInitAction(a:filePath)
 endfunction
@@ -59,10 +55,6 @@ endfunction
 or, supply autoload functions (`:h autoload`):
 
 ```
-function! ZFTmpFile#YourFileType#convertFilePath(filePath)
-    return YourConvertFilePath(a:filePath)
-endfunction
-
 function! ZFTmpFile#YourFileType#initAction(filePath)
     call YourInitAction(a:filePath)
 endfunction

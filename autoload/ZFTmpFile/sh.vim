@@ -3,6 +3,7 @@ function! ZFTmpFile#sh#initAction(filePath)
     call setline(1, [
                 \   'WORK_DIR=$(cd "$(dirname "$0")"; pwd)',
                 \   '',
+                \   '',
                 \ ])
     update
     normal! G
