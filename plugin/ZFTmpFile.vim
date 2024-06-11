@@ -32,7 +32,7 @@ function! CygpathFix_absPath(path)
     return substitute(substitute(path, '\\', '/', 'g'), '\%(\/\)\@<!\/\+$', '', '') " (?<!\/)\/+$
 endfunction
 
-function! ZFTmpFilePath(...)
+function! ZFTmpFilePath()
     let filePath = tempname()
     return CygpathFix_absPath(filePath)
 endfunction
@@ -55,7 +55,7 @@ endfunction
 
 function! ZFTmpFile(...)
     let ft = get(a:, 1, '')
-    execute 'edit ' . ZFTmpFilePath(ft)
+    execute 'edit ' . ZFTmpFilePath()
     if !empty(ft)
         let &filetype = ft
     endif
