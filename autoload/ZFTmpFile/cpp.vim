@@ -1,6 +1,9 @@
 
 function! ZFTmpFile#cpp#initAction(filePath)
     call setline(1, [
+                \   "",
+                \   "// let g:ZFTmpFile_cpp_standard='c++03'",
+                \   "",
                 \   "#include <stdio.h>",
                 \   "#include <string>",
                 \   "#include <vector>",
