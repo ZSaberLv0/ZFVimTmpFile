@@ -47,7 +47,8 @@ endfunction
 
 function! ZFTmpFile_rm(f)
     if (has('win32') || has('win64')) && !has('unix')
-        call system('rmdir /s/q "' . substitute(a:f, '/', '\', 'g') . '"')
+        call system('del /s/q "' . substitute(a:f, '/', '\', 'g') . '"')
+        call system('rmdir /f/s/q "' . substitute(a:f, '/', '\', 'g') . '"')
     else
         call system('rm -rf "' . a:f . '"')
     endif
