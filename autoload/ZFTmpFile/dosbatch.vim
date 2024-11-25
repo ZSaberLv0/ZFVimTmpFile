@@ -26,22 +26,6 @@ function! ZFTmpFile#dosbatch#saveAction(filePath)
     if empty(result)
         return
     endif
-
-    " fix encoding
-    let encoding = s:getEncoding()
-    if !empty(encoding) && exists('*iconv')
-        let result = iconv(result, encoding, &encoding)
-    endif
-
-    echo result
-endfunction
-
-function! s:getEncoding()
-    if !exists('s:WindowsCodePage')
-        let cp = system("@echo off && for /f \"tokens=2* delims=: \" %a in ('chcp') do (echo %a)")
-        let cp = 'cp' . substitute(cp, '[\r\n]', '', 'g')
-        let s:WindowsCodePage = cp
-    endif
-    return s:WindowsCodePage
+    echo ZFTmpFile_fixEncoding(result)
 endfunction
 

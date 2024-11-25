@@ -285,3 +285,17 @@ function! ZFTmpFile_saveAndRun()
     endtry
 endfunction
 
+function! ZFTmpFile_fixEncoding(text)
+    if !exists('s:WindowsCodePage')
+        let cp = system("@echo off && for /f \"tokens=2* delims=: \" %a in ('chcp') do (echo %a)")
+        let cp = 'cp' . substitute(cp, '[\r\n]', '', 'g')
+        let s:WindowsCodePage = cp
+    endif
+    let encoding = s:WindowsCodePage
+    if !empty(a:text) && !empty(encoding) && exists('*iconv')
+        return iconv(a:text, encoding, &encoding)
+    else
+        return a:text
+    endif
+endfunction
+
