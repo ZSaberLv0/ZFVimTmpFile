@@ -132,7 +132,7 @@ function! s:setup()
         execute 'nnoremap <buffer><silent> ' . g:ZFTmpFile_keymap_saveAndRun . ' :call ZFTmpFile_saveAndRun()<cr>'
     endif
     if !empty(get(g:, 'ZFTmpFile_keymap_quit', ''))
-        execute 'nnoremap <buffer><silent> ' . g:ZFTmpFile_keymap_quit . ' :bd!<cr>'
+        execute 'nnoremap <buffer><silent> ' . g:ZFTmpFile_keymap_quit . ' :call ZFTmpFile_quit()<cr>'
     endif
     call ZFTmpFile_initAction()
 endfunction
@@ -284,6 +284,22 @@ function! ZFTmpFile_saveAndRun()
         unlet b:coc_diagnostic_disable
     catch
     endtry
+endfunction
+
+function! ZFTmpFile_quit()
+    if get(g:, 'ZFTmpFile_quitConfirm', 1)
+        redraw
+        let hint = '[ZFTmpFile] quit and discard temp file?'
+        let hint .= "\n"
+        let hint .= "\n(y)es / (n)o: "
+        echo hint
+        let choose = getchar()
+        redraw
+        if choose != char2nr('y')
+            return
+        endif
+    endif
+    bd!
 endfunction
 
 function! ZFTmpFile_fixEncoding(text)
