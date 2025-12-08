@@ -67,6 +67,12 @@ endfunction
 command! -nargs=? -complete=filetype ZFTmpFile :call ZFTmpFile(<f-args>)
 command! -nargs=0 ZFTmpFileRunCurrent :call ZFTmpFile_saveAction()
 command! -nargs=0 ZFTmpFileEnableCurrent :call s:setupForCurrent()
+command! -nargs=* -bang ZFTmpFileCustom :call ZFTmpFileCustom({
+            \   'mode' : empty(<q-args>) ? 0 : (
+            \     empty(<q-bang>) ? 1 : 2
+            \   ),
+            \   'cmd' : <q-args>,
+            \ })
 
 let s:dataPath = CygpathFix_absPath(expand('<sfile>:p:h:h') . '/autoload/ZFTmpFile')
 function! ZFTmpFileSetup(ft)
@@ -120,6 +126,50 @@ function! ZFTmpFileAlias(existFt, aliasFt)
                 \ ], "\n")
 endfunction
 
+" option: {
+"   'mode' : 0/1/2,
+"       * 0 : remove prev setup
+"       * 1 : cmd is shell command
+"       * 2 : cmd is vim command
+"   'cmd' : 'the cmd or shell string',
+" }
+function! ZFTmpFileCustom(option)
+    let mode = get(a:option, 'mode', -1)
+    let cmd = get(a:option, 'cmd', '')
+
+    if mode == 0
+        if exists('b:ZFTmpFileCustomAction')
+            echo printf('[ZFTmpFile] custom action removed: (%s) %s'
+                        \ , b:ZFTmpFileCustomAction['mode'] == 1 ? 'shell' : 'cmd'
+                        \ , b:ZFTmpFileCustomAction['cmd']
+                        \ )
+            unlet b:ZFTmpFileCustomAction
+        else
+            echo '[ZFTmpFile] no custom action'
+        endif
+    elseif (mode == 1 || mode == 2) && !empty(cmd)
+        let b:ZFTmpFileCustomAction = {
+                    \   'mode' : mode,
+                    \   'cmd' : cmd,
+                    \ }
+        echo printf('[ZFTmpFile] custom action: (%s) %s'
+                    \ , mode == 1 ? 'shell' : 'cmd'
+                    \ , cmd
+                    \ )
+        call s:setupForCurrent()
+    else
+        if exists('b:ZFTmpFileCustomAction')
+            echo printf('[ZFTmpFile] custom action: (%s) %s'
+                        \ , b:ZFTmpFileCustomAction['mode'] == 1 ? 'shell' : 'cmd'
+                        \ , b:ZFTmpFileCustomAction['cmd']
+                        \ )
+        else
+            echo '[ZFTmpFile] no custom action'
+        endif
+    endif
+endfunction
+
+" ============================================================
 augroup ZF_TmpFile_augroup
     autocmd!
     autocmd User ZFTmpFileInit call s:setup()
@@ -175,6 +225,17 @@ function! s:autoloadFuncExist(ftEscape, fnName)
     return exists('*' . a:fnName)
 endfunction
 
+function! ZFTmpFile_customAction_shell(cmd, filePath)
+    let cmd = substitute(a:cmd, '@@', a:filePath, 'g')
+    let result = system(cmd)
+    echo result
+endfunction
+
+function! ZFTmpFile_customAction_cmd(cmd, filePath)
+    let cmd = substitute(a:cmd, '@@', a:filePath, 'g')
+    execute cmd
+endfunction
+
 function! s:prepareImplFunc(action, ...)
     let ret = []
     let ft = get(a:, 1, '')
@@ -184,6 +245,23 @@ function! s:prepareImplFunc(action, ...)
     let ftEscape = s:ftEscape(ft)
     if empty(ftEscape)
         return ret
+    endif
+
+    if a:action == 'saveAction' && !empty(get(b:, 'ZFTmpFileCustomAction', ''))
+        let cmd = b:ZFTmpFileCustomAction['cmd']
+        if exists('*ZFJobFunc')
+            if b:ZFTmpFileCustomAction['mode'] == '1'
+                call add(ret, ZFJobFunc(function('ZFTmpFile_customAction_shell'), [cmd]))
+            else
+                call add(ret, ZFJobFunc(function('ZFTmpFile_customAction_cmd'), [cmd]))
+            endif
+        else
+            if b:ZFTmpFileCustomAction['mode'] == '1'
+                call add(ret, function('ZFTmpFile_customAction_shell', [cmd]))
+            else
+                call add(ret, function('ZFTmpFile_customAction_cmd', [cmd]))
+            endif
+        endif
     endif
 
     let fnName = 'ZFTmpFile#' . ftEscape . '#' . a:action
@@ -199,11 +277,42 @@ function! s:prepareImplFunc(action, ...)
     return ret
 endfunction
 
+function! s:callFns(Fns, filePath)
+    let result = ''
+    if exists('*execute')
+        try
+            if exists('*ZFJobFunc')
+                let result = execute('for Fn in a:Fns | call ZFJobFuncCall(Fn, [a:filePath]) | endfor', '')
+            else
+                let result = execute('for Fn in a:Fns | call Fn(a:filePath) | endfor', '')
+            endif
+        catch
+            let result = v:exception
+        endtry
+    else
+        try
+            redir => result
+            if exists('*ZFJobFunc')
+                for Fn in a:Fns
+                    call ZFJobFuncCall(Fn, [a:filePath])
+                endfor
+            else
+                for Fn in a:Fns
+                    call Fn(a:filePath)
+                endfor
+            endif
+        catch
+            let result = v:exception
+        finally
+            redir END
+        endtry
+    endif
+    return result
+endfunction
+
 function! ZFTmpFile_initAction(...)
     let filePath = CygpathFix_absPath(expand('%'))
-    for Fn in s:prepareImplFunc('initAction', get(a:, 1, ''))
-        call Fn(filePath)
-    endfor
+    call s:callFns(s:prepareImplFunc('initAction', get(a:, 1, '')), filePath)
 endfunction
 
 function! ZFTmpFile_saveAction(...)
@@ -231,25 +340,7 @@ function! s:ZFTmpFile_saveAction(...)
         echo '[ZFTmpFile] run as ' . ft
     endif
 
-    let result = ''
-    if exists('*execute')
-        try
-            let result = execute('for Fn in Fns | call Fn(filePath) | endfor', '')
-        catch
-            let result = v:exception
-        endtry
-    else
-        try
-            redir => result
-            for Fn in Fns
-                call Fn(filePath)
-            endfor
-        catch
-            let result = v:exception
-        finally
-            redir END
-        endtry
-    endif
+    let result = s:callFns(Fns, filePath)
 
     redraw!
     if !noEcho
@@ -268,9 +359,7 @@ endfunction
 
 function! ZFTmpFile_cleanupAction(...)
     let filePath = CygpathFix_absPath(expand('%'))
-    for Fn in s:prepareImplFunc('cleanupAction', get(a:, 1, ''))
-        call Fn(filePath)
-    endfor
+    call s:callFns(s:prepareImplFunc('cleanupAction', get(a:, 1, '')), filePath)
 endfunction
 
 function! ZFTmpFile_saveAndRun()
