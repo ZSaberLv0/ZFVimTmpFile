@@ -1,21 +1,20 @@
 
 function! ZFTmpFile#cpp#initAction(filePath)
     call setline(1, [
-                \   "",
-                \   "// let g:ZFTmpFile_cpp_standard='c++03'",
-                \   "",
-                \   "#include <stdio.h>",
-                \   "#include <string>",
-                \   "#include <vector>",
-                \   "#include <map>",
-                \   "using namespace std;",
-                \   "",
-                \   "int main(int argc, char **argv)",
-                \   "{",
-                \   "    printf(\"hello world\\n\");",
-                \   "    return 0;",
-                \   "}",
-                \   "",
+                \   '',
+                \   '// let g:ZFTmpFile_cpp_standard="c++03"',
+                \   '',
+                \   '#include <stdio.h>',
+                \   '#include <string>',
+                \   '#include <vector>',
+                \   '#include <map>',
+                \   'using namespace std;',
+                \   '',
+                \   'int main(int argc, char **argv) {',
+                \   '    printf("hello world\n");',
+                \   '    return 0;',
+                \   '}',
+                \   '',
                 \ ])
     update
     normal! 8j

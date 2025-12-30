@@ -5,7 +5,7 @@ function! ZFTmpFile#go#initAction(filePath)
                 \   'import "fmt"',
                 \   '',
                 \   'func main() {',
-                \   '    fmt.Println("hello world")',
+                \   '    fmt.Printf("hello %s\n", "world")',
                 \   '}',
                 \   '',
                 \ ])

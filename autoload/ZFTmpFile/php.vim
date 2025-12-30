@@ -3,7 +3,7 @@ function! ZFTmpFile#php#initAction(filePath)
     call setline(1, [
                 \   '<?php',
                 \   'function test() {',
-                \   '    print_r("hello world");',
+                \   "    print_r(sprintf('hello %s', 'world'));",
                 \   '}',
                 \   'test()',
                 \   '?>',

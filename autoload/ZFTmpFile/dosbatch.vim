@@ -6,6 +6,8 @@ function! ZFTmpFile#dosbatch#initAction(filePath)
                 \   'setlocal enabledelayedexpansion',
                 \   'set WORK_DIR=%~dp0',
                 \   '',
+                \   'set v=world',
+                \   'echo "hello %v%"',
                 \   '',
                 \ ])
     setlocal fileformat=dos

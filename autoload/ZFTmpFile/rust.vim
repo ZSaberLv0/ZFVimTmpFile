@@ -1,11 +1,11 @@
 
 function! ZFTmpFile#rust#initAction(filePath)
     call setline(1, [
-                \   "",
-                \   "fn main() {",
-                \   "    println!(\"hello world\");",
-                \   "}",
-                \   "",
+                \   '',
+                \   'fn main() {',
+                \   '    println!("hello world");',
+                \   '}',
+                \   '',
                 \ ])
     update
     normal! 2j

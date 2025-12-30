@@ -1,9 +1,10 @@
 
 function! ZFTmpFile#python#initAction(filePath)
     call setline(1, [
-                \   "# -*- coding: utf-8 -*-",
-                \   "",
-                \   "",
+                \   '# -*- coding: utf-8 -*-',
+                \   '',
+                \   "print('hello %s' %('world'))",
+                \   '',
                 \ ])
     update
     normal! G

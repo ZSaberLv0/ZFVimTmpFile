@@ -24,7 +24,7 @@ function! ZFTmpFile#javascript#initAction(filePath)
                 \   '} catch(err) {}',
                 \   '// ============================================================',
                 \   '',
-                \   'console.log($.fn.jquery);',
+                \   'console.log(`hello world: ${$.fn.jquery}`);',
                 \   '',
                 \ ])
     update

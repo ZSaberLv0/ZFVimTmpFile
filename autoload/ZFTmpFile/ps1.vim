@@ -1,4 +1,15 @@
 
+function! ZFTmpFile#ps1#initAction(filePath)
+    call setline(1, [
+                \   '',
+                \   '$v = "world"',
+                \   '"hello ${v}"',
+                \   '',
+                \ ])
+    update
+    normal! G
+endfunction
+
 function! ZFTmpFile#ps1#saveAction(filePath)
     let path = substitute(fnamemodify(a:filePath, ':.'), '/', '\\', 'g')
     let pathTmp = path . '.ZFTmpFile_powershell.ps1'

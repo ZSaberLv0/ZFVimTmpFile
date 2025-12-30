@@ -1,14 +1,13 @@
 
 function! ZFTmpFile#c#initAction(filePath)
     call setline(1, [
-                \   "#include <stdio.h>",
-                \   "",
-                \   "int main(int argc, char **argv)",
-                \   "{",
-                \   "    printf(\"hello world\\n\");",
-                \   "    return 0;",
-                \   "}",
-                \   "",
+                \   '#include <stdio.h>',
+                \   '',
+                \   'int main(int argc, char **argv) {',
+                \   '    printf("hello world\n");',
+                \   '    return 0;',
+                \   '}',
+                \   '',
                 \ ])
     update
     normal! 4j
