@@ -3,7 +3,7 @@ function! ZFTmpFile#ps1#initAction(filePath)
     call setline(1, [
                 \   '',
                 \   '$v = "world"',
-                \   '"hello ${v}"',
+                \   '# "hello ${v}"',
                 \   '',
                 \ ])
     update

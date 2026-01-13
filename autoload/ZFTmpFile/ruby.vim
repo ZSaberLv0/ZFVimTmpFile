@@ -2,7 +2,7 @@
 function! ZFTmpFile#ruby#initAction(filePath)
     call setline(1, [
                 \   '',
-                \   "puts format('hello %s', 'world')",
+                \   "# puts format('hello %s', 'world')",
                 \   '',
                 \ ])
     update

@@ -2,7 +2,7 @@
 function! ZFTmpFile#vim#initAction(filePath)
     call setline(1, [
                 \   '',
-                \   "echo printf('hello world')",
+                \   "\" echo printf('hello world')",
                 \   '',
                 \ ])
     update

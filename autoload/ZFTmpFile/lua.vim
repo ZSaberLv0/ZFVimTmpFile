@@ -2,7 +2,7 @@
 function! ZFTmpFile#lua#initAction(filePath)
     call setline(1, [
                 \   '',
-                \   "print(string.format('hello %s', 'world'))",
+                \   "-- print(string.format('hello %s', 'world'))",
                 \   '',
                 \ ])
     update

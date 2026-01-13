@@ -3,7 +3,7 @@ function! ZFTmpFile#python#initAction(filePath)
     call setline(1, [
                 \   '# -*- coding: utf-8 -*-',
                 \   '',
-                \   "print('hello %s' %('world'))",
+                \   "# print('hello %s' %('world'))",
                 \   '',
                 \ ])
     update
