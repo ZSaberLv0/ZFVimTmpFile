@@ -54,8 +54,28 @@ function! ZFTmpFile_rm(f)
     endif
 endfunction
 
+function! ZFTmpFile_splitCmdDef()
+    if winnr('$') > 2
+        enew
+    elseif winwidth('.') >= 120
+        rightbelow vsplit
+    else
+        rightbelow split
+    endif
+endfunction
+
 function! ZFTmpFile(...)
     let ft = get(a:, 1, '')
+
+    let Fn_splitCmd = get(g:, 'ZFTmpFile_splitCmd', function('ZFTmpFile_splitCmdDef'))
+    if !empty(Fn_splitCmd)
+        if type(Fn_splitCmd) == type('')
+            execute splitCmd
+        else
+            call Fn_splitCmd()
+        endif
+    endif
+
     execute 'edit ' . ZFTmpFilePath()
     if !empty(ft)
         let &filetype = ft
