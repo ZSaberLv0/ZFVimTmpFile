@@ -247,8 +247,7 @@ endfunction
 
 function! ZFTmpFile_customAction_shell(cmd, filePath)
     let cmd = substitute(a:cmd, '@@', a:filePath, 'g')
-    let result = system(cmd)
-    echo result
+    call system(cmd)
 endfunction
 
 function! ZFTmpFile_customAction_cmd(cmd, filePath)
@@ -302,9 +301,9 @@ function! s:callFns(Fns, filePath)
     if exists('*execute')
         try
             if exists('*ZFJobFunc')
-                let result = execute('for Fn in a:Fns | call ZFJobFuncCall(Fn, [a:filePath]) | endfor', '')
+                let result = execute('for Fn in a:Fns | call ZFJobFuncCall(Fn, [a:filePath]) | unlet Fn | endfor', '')
             else
-                let result = execute('for Fn in a:Fns | call Fn(a:filePath) | endfor', '')
+                let result = execute('for Fn in a:Fns | call Fn(a:filePath) | unlet Fn | endfor', '')
             endif
         catch
             let result = v:exception
@@ -314,11 +313,13 @@ function! s:callFns(Fns, filePath)
             redir => result
             if exists('*ZFJobFunc')
                 for Fn in a:Fns
-                    call ZFJobFuncCall(Fn, [a:filePath])
+                    silent! call ZFJobFuncCall(Fn, [a:filePath])
+                    unlet Fn
                 endfor
             else
                 for Fn in a:Fns
-                    call Fn(a:filePath)
+                    silent! call Fn(a:filePath)
+                    unlet Fn
                 endfor
             endif
         catch
