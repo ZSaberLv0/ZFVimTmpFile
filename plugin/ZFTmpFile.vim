@@ -247,7 +247,7 @@ endfunction
 
 function! ZFTmpFile_customAction_shell(cmd, filePath)
     let cmd = substitute(a:cmd, '@@', a:filePath, 'g')
-    call system(cmd)
+    echo system(cmd)
 endfunction
 
 function! ZFTmpFile_customAction_cmd(cmd, filePath)
@@ -281,16 +281,16 @@ function! s:prepareImplFunc(action, ...)
                 call add(ret, function('ZFTmpFile_customAction_cmd', [cmd]))
             endif
         endif
-    endif
+    else
+        let fnName = 'ZFTmpFile#' . ftEscape . '#' . a:action
+        if s:autoloadFuncExist(ftEscape, fnName)
+            call add(ret, function(fnName))
+        endif
 
-    let fnName = 'ZFTmpFile#' . ftEscape . '#' . a:action
-    if s:autoloadFuncExist(ftEscape, fnName)
-        call add(ret, function(fnName))
-    endif
-
-    let fnName = 'ZFTmpFile_' . ftEscape . '_' . a:action
-    if exists('*' . fnName)
-        call add(ret, function(fnName))
+        let fnName = 'ZFTmpFile_' . ftEscape . '_' . a:action
+        if exists('*' . fnName)
+            call add(ret, function(fnName))
+        endif
     endif
 
     return ret
