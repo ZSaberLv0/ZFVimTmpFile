@@ -23,10 +23,11 @@ function! ZFTmpFile#java#initAction(filePath)
     normal! 12j
 endfunction
 
+function! ZFTmpFile#java#createAction(state)
+    let a:state['filePath'] = a:state['filePath'] . '/Hello.java'
+endfunction
+
 function! ZFTmpFile#java#saveAction(filePath)
-    let tmp = ZFTmpFilePath() . '.java'
-    call ZFTmpFile_cp(a:filePath, tmp)
-    echo system('java "' . tmp . '"')
-    call ZFTmpFile_rm(tmp)
+    echo system('java "' . a:filePath . '"')
 endfunction
 

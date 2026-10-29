@@ -75,7 +75,13 @@ function! ZFTmpFile(...)
         endif
     endif
 
-    execute 'edit ' . ZFTmpFilePath()
+    let filePath = ZFTmpFilePath()
+    let filePathFixed = ZFTmpFile_createAction(filePath, ft)
+    if empty(filePathFixed)
+        let filePathFixed = filePath
+    endif
+    call mkdir(fnamemodify(filePathFixed, ':h'), 'p')
+    execute 'edit ' . filePathFixed
     if !empty(ft)
         let &filetype = ft
     endif
@@ -111,6 +117,10 @@ function! ZFTmpFileSetup(ft)
                     \   '',
                     \   '" call ZFTmpFileAlias("existFt", "' . ft . '")',
                     \   '',
+                    \   'function! ZFTmpFile#' . ft . '#createAction(state)',
+                    \   "    let a:state['filePath'] = a:state['filePath']",
+                    \   'endfunction',
+                    \   '',
                     \   'function! ZFTmpFile#' . ft . '#initAction(filePath)',
                     \   'endfunction',
                     \   '',
@@ -127,6 +137,12 @@ command! -nargs=* -complete=filetype ZFTmpFileSetup :call ZFTmpFileSetup(<q-args
 
 function! ZFTmpFileAlias(existFt, aliasFt)
     let aliasFt = s:ftEscape(a:aliasFt)
+    execute join([
+                \   'function! ZFTmpFile_' . aliasFt . '_createAction(state)',
+                \   '    set filetype=' . a:existFt,
+                \   '    return ZFTmpFile_createAction(a:state, "' . a:existFt . '")',
+                \   'endfunction',
+                \ ], "\n")
     execute join([
                 \   'function! ZFTmpFile_' . aliasFt . '_initAction(filePath)',
                 \   '    set filetype=' . a:existFt,
@@ -295,14 +311,14 @@ function! s:prepareImplFunc(action, ...)
     return ret
 endfunction
 
-function! s:callFns(Fns, filePath)
+function! s:callFns(Fns, param)
     let result = ''
     if exists('*execute')
         try
             if exists('*ZFJobFunc')
-                let result = execute('for Fn in a:Fns | call ZFJobFuncCall(Fn, [a:filePath]) | unlet Fn | endfor', '')
+                let result = execute('for Fn in a:Fns | call ZFJobFuncCall(Fn, [a:param]) | unlet Fn | endfor', '')
             else
-                let result = execute('for Fn in a:Fns | call Fn(a:filePath) | unlet Fn | endfor', '')
+                let result = execute('for Fn in a:Fns | call Fn(a:param) | unlet Fn | endfor', '')
             endif
         catch
             let result = v:exception
@@ -312,12 +328,12 @@ function! s:callFns(Fns, filePath)
             redir => result
             if exists('*ZFJobFunc')
                 for Fn in a:Fns
-                    silent! call ZFJobFuncCall(Fn, [a:filePath])
+                    silent! call ZFJobFuncCall(Fn, [a:param])
                     unlet Fn
                 endfor
             else
                 for Fn in a:Fns
-                    silent! call Fn(a:filePath)
+                    silent! call Fn(a:param)
                     unlet Fn
                 endfor
             endif
@@ -328,6 +344,14 @@ function! s:callFns(Fns, filePath)
         endtry
     endif
     return result
+endfunction
+
+function! ZFTmpFile_createAction(filePath, fileType)
+    let state = {
+                \   'filePath' : a:filePath,
+                \ }
+    call s:callFns(s:prepareImplFunc('createAction', a:fileType), state)
+    return state['filePath']
 endfunction
 
 function! ZFTmpFile_initAction(...)
